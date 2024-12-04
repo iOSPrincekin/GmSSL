@@ -1,0 +1,5 @@
+gmssl sm2keygen -pass P@ssw0rd -out sm2.pem -pubout sm2pub.pem
+
+sm2encrypt -pubkey /Users/lee/Desktop/TONGDUN/S/GmSSL/key/sm2pub.pem -out sm2.der
+
+sm2decrypt -key /Users/lee/Desktop/TONGDUN/S/GmSSL/key/sm2.pem -pass P@ssw0rd -in sm2.der
