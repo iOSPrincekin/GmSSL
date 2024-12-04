@@ -36,6 +36,11 @@ static const char *options =
 
 int sm2encrypt_main(int argc, char **argv)
 {
+    printf("argc-::%d\n",argc);
+    for(int i = 0;i< argc;i++){
+        char* arg = argv[i];
+        printf("arg-::%s\n",arg);
+    }
 	int ret = 1;
 	char *prog = argv[0];
 	char *pubkeyfile = NULL;
@@ -44,15 +49,18 @@ int sm2encrypt_main(int argc, char **argv)
 	char *outfile = NULL;
 	FILE *pubkeyfp = NULL;
 	FILE *certfp = NULL;
-	FILE *infp = stdin;
+//	FILE *infp = stdin;
+    FILE *infp = fopen("plaintext.txt", "rb");
 	FILE *outfp = stdout;
 	uint8_t cert[1024];
 	size_t certlen;
 	SM2_KEY key;
 	SM2_ENC_CTX ctx;
-	uint8_t inbuf[SM2_MAX_PLAINTEXT_SIZE + 1];
+	//uint8_t inbuf[SM2_MAX_PLAINTEXT_SIZE + 1];
+    const size_t inlen = 4;
+    uint8_t inbuf[inlen] = "ABC";
 	uint8_t outbuf[SM2_MAX_CIPHERTEXT_SIZE];
-	size_t inlen, outlen = sizeof(outbuf);
+	size_t outlen = sizeof(outbuf);
 
 	argc--;
 	argv++;
@@ -133,14 +141,14 @@ bad:
 		goto end;
 	}
 
-	if ((inlen = fread(inbuf, 1, sizeof(inbuf), infp)) <= 0) {
-		fprintf(stderr, "gmssl %s: read input error : %s\n", prog, strerror(errno));
-		goto end;
-	}
-	if (inlen > SM2_MAX_PLAINTEXT_SIZE) {
-		fprintf(stderr, "gmssl %s: input long than SM2_MAX_PLAINTEXT_SIZE (%d)\n", prog, SM2_MAX_PLAINTEXT_SIZE);
-		goto end;
-	}
+//	if ((inlen = fread(inbuf, 1, sizeof(inbuf), infp)) <= 0) {
+//		fprintf(stderr, "gmssl %s: read input error : %s\n", prog, strerror(errno));
+//		goto end;
+//	}
+//	if (inlen > SM2_MAX_PLAINTEXT_SIZE) {
+//		fprintf(stderr, "gmssl %s: input long than SM2_MAX_PLAINTEXT_SIZE (%d)\n", prog, SM2_MAX_PLAINTEXT_SIZE);
+//		goto end;
+//	}
 
 	if (sm2_encrypt_init(&ctx) != 1) {
 		fprintf(stderr, "gmssl %s: sm2_encrypt_init failed\n", prog);
@@ -154,7 +162,13 @@ bad:
 		fprintf(stderr, "gmssl %s: sm2_encrypt_finish error\n", prog);
 		goto end;
 	}
-
+    
+    printf("outlen-::%d",outlen);
+    printf("{");
+    for (int i = 0; i < outlen; i++) {
+        printf("0x%x,",outbuf[i]);
+    }
+    printf("}\n");
 	if (outlen != fwrite(outbuf, 1, outlen, outfp)) {
 		fprintf(stderr, "gmssl %s: output error : %s\n", prog, strerror(errno));
 		goto end;
